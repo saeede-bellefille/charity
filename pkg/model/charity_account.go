@@ -42,7 +42,7 @@ func (ca *CharityAccount) Initialize(db *gorm.DB) {
 
 func (ca *CharityAccount) Find(db *gorm.DB) ([]Model, error) {
 	result := []CharityAccount{}
-	if err := db.Preload("CommonBaseData").Preload("CommonBaseData.CommonBaseType").Find(&result, ca).Error; err != nil {
+	if err := db.Preload("Bank").Preload("Bank.CommonBaseType").Find(&result, ca).Error; err != nil {
 		return nil, err
 	}
 	ret := make([]Model, len(result))

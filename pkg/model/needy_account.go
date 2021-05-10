@@ -39,7 +39,7 @@ func (na *NeedyAccount) Initialize(db *gorm.DB) {
 
 func (na *NeedyAccount) Find(db *gorm.DB) ([]Model, error) {
 	result := []NeedyAccount{}
-	if err := db.Preload("Personal").Preload("CommonBaseData").Preload("CommonBaseData.CommonBaseType").Find(&result, na).Error; err != nil {
+	if err := db.Preload("Needy").Preload("Bank").Preload("Bank.CommonBaseType").Find(&result, na).Error; err != nil {
 		return nil, err
 	}
 	ret := make([]Model, len(result))

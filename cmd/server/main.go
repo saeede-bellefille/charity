@@ -34,7 +34,7 @@ func main() {
 	}
 
 	go func() {
-		fmt.Println("Starting server on port 9090")
+		fmt.Println("Starting server on port 9091")
 
 		err := server.ListenAndServe()
 		if err != nil {

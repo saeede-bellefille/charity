@@ -41,7 +41,7 @@ func (cad *CashAssistanceDetail) Initialize(db *gorm.DB) {
 
 func (cad *CashAssistanceDetail) Find(db *gorm.DB) ([]Model, error) {
 	result := []CashAssistanceDetail{}
-	if err := db.Preload("Plans").Preload("AssignNeedyToPlans").Preload("AssignNeedyToPlans.Personal").Preload("AssignNeedyToPlan.Plan").Find(&result, cad).Error; err != nil {
+	if err := db.Preload("Plan").Preload("AssignNeedyPlan").Preload("AssignNeedyPlan.Needy").Preload("AssignNeedyPlan.Plan").Find(&result, cad).Error; err != nil {
 		return nil, err
 	}
 	ret := make([]Model, len(result))

@@ -2,6 +2,7 @@ package model
 
 import (
 	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"strconv"
 
@@ -60,7 +61,7 @@ func (p *Personal) Initialize(db *gorm.DB) {
 		pass := p.Name + p.Family + p.NationalCode
 		h := sha1.New()
 		h.Write([]byte(pass))
-		p.SecretCode = string(h.Sum(nil))
+		p.SecretCode = hex.EncodeToString(h.Sum(nil)[:10])
 	}
 }
 
