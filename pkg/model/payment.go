@@ -16,9 +16,9 @@ type Payment struct {
 	Donator                Personal             `json:"donator" gorm:"foreignKey:DonatorID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	CashAssistanceDetailID int64                `json:"cash_assistance_detail_id" validate:"required"`
 	CashAssistanceDetail   CashAssistanceDetail `json:"cash_assistance_detail" gorm:"foreignKey:CashAssistanceDetailID;not null;constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
-	PaymentPrice           float64              `json:"price" validate:"required" gorm:"not null;type:money"`
+	PaymentPrice           float64              `json:"price" validate:"required" gorm:"not null;type:decimal(19,3)"`
 	PaymentGatewayID       string               `json:"payment_gateway_id" gorm:"type:varchar(10)"`
-	PaymentDate            time.Time            `json:"payment_data" validate:"required" gorm:"not null;type:date"`
+	PaymentDate            time.Time            `json:"payment_date" validate:"required" gorm:"not null;type:date"`
 	PaymentTime            time.Time            `json:"payment_time" validate:"required" gorm:"not null;type:time"`
 	PaymentStatus          string               `json:"payment_status" validate:"required" gorm:"not null;type:varchar(500)"`
 	SourceAccoutNumber     string               `json:"source_account_number" gorm:"type:varchar(10)"`
@@ -45,10 +45,10 @@ func (p *Payment) Load(g Getter) {
 }
 
 func (p *Payment) Validate() error {
-	if p.settlementSum+p.PaymentPrice > p.CashAssistanceDetail.NeededPrice {
-		return fmt.Errorf("Sum of payments + price is more than needed")
+	if p.CashAssistanceDetail.ID != 0 && p.settlementSum+p.PaymentPrice > p.CashAssistanceDetail.NeededPrice {
+		return fmt.Errorf("Sum of settlement payments + price is more than needed")
 	}
-	if p.paymentSum+p.PaymentPrice > p.CashAssistanceDetail.NeededPrice {
+	if p.CashAssistanceDetail.ID != 0 && p.paymentSum+p.PaymentPrice > p.CashAssistanceDetail.NeededPrice {
 		return fmt.Errorf("Sum of payments + price is more than needed")
 	}
 	return validator.New().Struct(p)
@@ -75,15 +75,15 @@ func (p *Payment) Initialize(db *gorm.DB) {
 
 func (p *Payment) Find(db *gorm.DB) ([]Model, error) {
 	result := []Payment{}
-	if err := db.Preload("Personal").
+	if err := db.Preload("Needy").
 		Preload("CharityAccount").
 		Preload("CharityAccount.CommonBaseData").
 		Preload("CharityAccount.CommonBaseData.CommonBaseType").
 		Preload("CashAssistanceDetail").
 		Preload("CashAssistanceDetail.Plan").
-		Preload("CashAssistanceDetail.AssignNeedyToPlan").
-		Preload("CashAssistanceDetail.AssignNeedyToPlan.Personal").
-		Preload("CashAssistanceDetail.AssignNeedyToPlan.Plan").
+		Preload("CashAssistanceDetail.AssignNeedyPlan").
+		Preload("CashAssistanceDetail.AssignNeedyPlan.Needy").
+		Preload("CashAssistanceDetail.AssignNeedyPlan.Plan").
 		Find(&result, p).Error; err != nil {
 		return nil, err
 	}

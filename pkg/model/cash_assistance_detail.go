@@ -15,8 +15,8 @@ type CashAssistanceDetail struct {
 	AssignNeedyPlan   AssignNeedyToPlan `json:"assign_needy_plan" validate:"required" gorm:"foreignKey:AssignNeedyPlanID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	PlanID            int64             `json:"plan_id" gorm:"UNIQUE_INDEX:compositeindex;not null"`
 	Plan              Plan              `json:"plan" validate:"required" gorm:"foreignKey:PlanID;constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
-	NeededPrice       float64           `json:"needed_price" validate:"required" gorm:"not null;type:money"`
-	MinPrice          float64           `json:"min_price" gorm:"type:money"`
+	NeededPrice       float64           `json:"needed_price" validate:"required" gorm:"not null;type:decimal(19,3)"`
+	MinPrice          float64           `json:"min_price" gorm:"type:decimal(19,3)"`
 	Description       string            `json:"description" gorm:"type:text"`
 }
 

@@ -19,9 +19,11 @@ import (
 func main() {
 
 	db := createConnection()
+	// db.Migrator().DropTable(&model.Payment{})
 	//db.Migrator().DropTable(&model.CommonBaseType{}, &model.CommonBaseData{}, &model.CharityAccount{}, &model.Personal{}, &model.NeedyAccount{}, &model.Plan{}, &model.AssignNeedyToPlan{}, &model.CashAssistanceDetail{}, &model.Payment{})
 	db.AutoMigrate(&model.CommonBaseType{}, &model.CommonBaseData{}, &model.CharityAccount{}, &model.Personal{}, &model.NeedyAccount{}, &model.Plan{}, &model.AssignNeedyToPlan{}, &model.CashAssistanceDetail{}, &model.Payment{})
 	//defer db.Close()
+	// db.AutoMigrate(&model.Payment{})
 
 	r := handler.Router(db)
 
