@@ -10,10 +10,10 @@ import (
 // CommonBaseData schema of the commonBaseData table
 type CommonBaseData struct {
 	ID               int64          `json:"common_base_data_id" gorm:"primary_key;auto_increment;not null"`
-	BaseCode         string         `json:"base_code" validate:"-" gorm:"UNIQUE_INDEX:compositeindex;index;not null;type:varchar(6);<-:create"`
+	BaseCode         string         `json:"base_code" validate:"required" gorm:"UNIQUE_INDEX:compositeindex;index;not null;type:varchar(6);<-:create"`
 	BaseValue        string         `json:"base_value" validate:"required" gorm:"not null;type:varchar(800)"`
 	CommonBaseTypeID int64          `json:"common_base_type_id" validate:"-" gorm:"UNIQUE_INDEX:compositeindex"`
-	CommonBaseType   CommonBaseType `json:"common_base_type" gorm:"foreignKey:CommonBaseTypeID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	CommonBaseType   CommonBaseType `json:"common_base_type" validate:"-" gorm:"foreignKey:CommonBaseTypeID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (cbd *CommonBaseData) Load(g Getter) {
