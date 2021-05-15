@@ -12,10 +12,10 @@ import (
 // AssignNeedyToPlans schema of the assignNeedyToPlans table
 type AssignNeedyToPlan struct {
 	ID      int64    `json:"assign_needy_plan_id" gorm:"primary_key;auto_increment;not null"`
-	NeedyID int64    `json:"needy_id" gorm:"not null;UNIQUE_INDEX:compositeindex;index"`
-	Needy   Personal `json:"needy" validate:"required" gorm:"foreignKey:NeedyID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
-	PlanID  int64    `json:"plan_id" gorm:"not null;UNIQUE_INDEX:compositeindex"`
-	Plan    Plan     `json:"plan" validate:"required" gorm:"foreignKey:PlanID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	NeedyID int64    `json:"needy_id" validate:"required" gorm:"not null;UNIQUE_INDEX:compositeindex;index"`
+	Needy   Personal `json:"needy" validate:"-" gorm:"foreignKey:NeedyID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	PlanID  int64    `json:"plan_id" validate:"required" gorm:"not null;UNIQUE_INDEX:compositeindex"`
+	Plan    Plan     `json:"plan" validate:"-" gorm:"foreignKey:PlanID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Fdate   string   `json:"fdate" validate:"-" gorm:"not null;type:varchar(10)"`
 	Tdate   string   `json:"tdate" validate:"-" gorm:"not null;type:varchar(10)"`
 }

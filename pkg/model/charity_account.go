@@ -11,8 +11,8 @@ import (
 // CharityAccount schema of the charityAccount table
 type CharityAccount struct {
 	ID            int64          `json:"charity_account_id" gorm:"primary_key;auto_increment;not null"`
-	BankID        int64          `json:"bank_id" validate:"-" gorm:"not null"`
-	Bank          CommonBaseData `json:"bank" gorm:"foreignKey:BankID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	BankID        int64          `json:"bank_id" validate:"required" gorm:"not null"`
+	Bank          CommonBaseData `json:"bank" validate:"-" gorm:"foreignKey:BankID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	BranchName    string         `json:"branch_name" validate:"required" gorm:"not null;type:varchar(500)"`
 	OwnerName     string         `json:"owner_name" validate:"required" gorm:"not null;type:varchar(1000)"`
 	CardNumber    string         `json:"card_number" gorm:"type:varchar(20)"`
