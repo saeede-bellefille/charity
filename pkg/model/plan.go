@@ -15,7 +15,7 @@ type Plan struct {
 	PlanName     string `json:"plan_name" validate:"required" gorm:"not null;type:varchar(1000);UNIQUE_INDEX:compositeindex;index"`
 	Description  string `json:"description" gorm:"type:text"`
 	PlanNature   bool   `json:"plan_nature" validate:"-" gorm:"not null;type:boolean;default:true;UNIQUE_INDEX:compositeindex"`
-	ParentPlanID int64  `json:"parent_plan_id" gorm:"UNIQUE_INDEX:compositeindex"`
+	ParentPlanID int64  `json:"parent_plan_id" validate:"required" gorm:"UNIQUE_INDEX:compositeindex"`
 	ParentPlan   *Plan  `json:"parent_plan" validate:"-" gorm:"foreignKey:ParentPlanID"`
 	Icon         []byte `json:"icon" gorm:"type:bytea"`
 	Fdate        string `json:"fdate" gorm:"type:varchar(10)"`

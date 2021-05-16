@@ -20,6 +20,13 @@ type AssignNeedyToPlan struct {
 	Tdate   string   `json:"tdate" validate:"-" gorm:"not null;type:varchar(10)"`
 }
 
+type AssignNeedyToPlanMultiple struct {
+	NeedyID []int64 `json:"needy_id"`
+	PlanID  int64   `json:"plan_id"`
+	Fdate   string  `json:"fdate"`
+	Tdate   string  `json:"tdate"`
+}
+
 func (antp *AssignNeedyToPlan) Load(g Getter) {
 	antp.ID, _ = strconv.ParseInt(g.Get("id"), 10, 64)
 	antp.PlanID, _ = strconv.ParseInt(g.Get("plan_id"), 10, 64)
@@ -56,4 +63,17 @@ func (antp *AssignNeedyToPlan) Find(db *gorm.DB) ([]Model, error) {
 		ret[i] = &result[i]
 	}
 	return ret, nil
+}
+
+func (antpm *AssignNeedyToPlanMultiple) ToList() []*AssignNeedyToPlan {
+	ret := make([]*AssignNeedyToPlan, 0, len(antpm.NeedyID))
+	for _, needy := range antpm.NeedyID {
+		ret = append(ret, &AssignNeedyToPlan{
+			NeedyID: needy,
+			PlanID:  antpm.PlanID,
+			Fdate:   antpm.Fdate,
+			Tdate:   antpm.Tdate,
+		})
+	}
+	return ret
 }

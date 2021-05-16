@@ -23,6 +23,35 @@ func New(creator func() model.Model, db *gorm.DB, name string) *Handler {
 	return &Handler{creator, db, name}
 }
 
+// creates one object in database to be used with Create or CreateMulti
+func (h *Handler) create(rw http.ResponseWriter, obj model.Model) bool {
+	objects, err := obj.Find(h.db)
+	if err != nil {
+		log.Println("Unable to scan the row", h.name, err)
+		http.Error(rw, fmt.Sprintf("Error finding %s", h.name), http.StatusBadRequest)
+		return false
+	}
+	if len(objects) != 0 {
+		fmt.Println("[ERROR] already exists this", h.name)
+		http.Error(rw, fmt.Sprintf("already exists %s", h.name), http.StatusNotAcceptable)
+		return false
+	}
+
+	obj.Initialize(h.db)
+	if err := obj.Validate(); err != nil {
+		log.Println("[ERROR] validation", h.name, err)
+		http.Error(rw, fmt.Sprintf("ERROR validation: %s", err), http.StatusBadRequest)
+		return false
+	}
+
+	if err := h.db.Create(obj).Error; err != nil {
+		log.Println("Cant insert new", h.name, err)
+		http.Error(rw, fmt.Sprintf("Cant insert new %s: %v", h.name, err), http.StatusNotAcceptable)
+		return false
+	}
+	return true
+}
+
 // Create creates an object in database
 func (h *Handler) Create(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Context-Type", "application/x-www-form-urlencoded")
@@ -31,35 +60,13 @@ func (h *Handler) Create(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	obj := h.creator()
-
 	if err := json.NewDecoder(r.Body).Decode(obj); err != nil && err != io.EOF {
 		log.Println("[ERROR] deserializing", h.name, err)
 		http.Error(rw, fmt.Sprintf("Error reading %s", h.name), http.StatusBadRequest)
 		return
 	}
 
-	objects, err := obj.Find(h.db)
-	if err != nil {
-		log.Println("Unable to scan the row", h.name, err)
-		http.Error(rw, fmt.Sprintf("Error finding %s", h.name), http.StatusBadRequest)
-		return
-	}
-	if len(objects) != 0 {
-		fmt.Println("[ERROR] already exists this", h.name)
-		http.Error(rw, fmt.Sprintf("already exists %s", h.name), http.StatusNotAcceptable)
-		return
-	}
-
-	obj.Initialize(h.db)
-	if err := obj.Validate(); err != nil {
-		log.Println("[ERROR] validation", h.name, err)
-		http.Error(rw, fmt.Sprintf("ERROR validation: %s", err), http.StatusBadRequest)
-		return
-	}
-
-	if err := h.db.Create(obj).Error; err != nil {
-		log.Println("Cant insert new", h.name, err)
-		http.Error(rw, fmt.Sprintf("Cant insert new %s: %v", h.name, err), http.StatusNotAcceptable)
+	if !h.create(rw, obj) {
 		return
 	}
 
@@ -152,4 +159,31 @@ func (h *Handler) Delete(rw http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("object delete successfully. Total rows/record affected %d", result.RowsAffected)
 	rw.WriteHeader(http.StatusNoContent)
+}
+
+// Create multiple ANTP objects in database
+func (h *Handler) CreateMultiANTP(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
+	rw.Header().Set("Access-Control-Allow-Methods", "POST")
+	rw.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	antp := &model.AssignNeedyToPlanMultiple{}
+	if err := json.NewDecoder(r.Body).Decode(antp); err != nil && err != io.EOF {
+		log.Println("[ERROR] deserializing AssignNeedyToPlanMultiple", err)
+		http.Error(rw, "Error reading AssignNeedyToPlanMultiple", http.StatusBadRequest)
+		return
+	}
+
+	list := antp.ToList()
+	for _, obj := range list {
+		if !h.create(rw, obj) {
+			return
+		}
+	}
+
+	if err := json.NewEncoder(rw).Encode(list); err != nil {
+		log.Println("Unable to marshal json", h.name, err)
+		http.Error(rw, fmt.Sprintf("Unable to marshal json: %v", err), http.StatusInternalServerError)
+	}
 }

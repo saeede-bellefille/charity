@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"SABKAD/pkg/model"
-
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
+
+	"SABKAD/pkg/model"
 )
 
 // Router is exported
@@ -53,6 +53,7 @@ func Router(db *gorm.DB) *mux.Router {
 	router.HandleFunc("/ANTP/{id:[0-9]+}", antp.Update).Methods("PUT")
 	router.HandleFunc("/ANTP/{id:[0-9]+}", antp.Delete).Methods("DELETE")
 	router.HandleFunc("/ANTP", antp.Search).Methods("GET")
+	router.HandleFunc("/ANTPm", antp.CreateMultiANTP).Methods("POST")
 
 	cad := New(func() model.Model { return &model.CashAssistanceDetail{} }, db, "CashAssistanceDetail")
 	router.HandleFunc("/CAD", cad.Create).Methods("POST")
