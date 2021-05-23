@@ -48,7 +48,7 @@ func (p *Personal) Load(g Getter) {
 }
 
 func (p *Personal) Validate() error {
-	if p.IDNumber != "" {
+	if p.NationalCode != "" {
 		if !validateID(p.NationalCode) {
 			return fmt.Errorf("This id number is not valid: %s", p.NationalCode)
 		}

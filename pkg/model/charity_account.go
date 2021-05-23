@@ -51,3 +51,8 @@ func (ca *CharityAccount) Find(db *gorm.DB) ([]Model, error) {
 	}
 	return ret, nil
 }
+
+func (ca *CharityAccount) BeforeUpdate(tx *gorm.DB) (err error) {
+	ca.Bank = CommonBaseData{}
+	return nil
+}

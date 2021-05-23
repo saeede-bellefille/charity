@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 
@@ -11,6 +13,8 @@ import (
 func Router(db *gorm.DB) *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
+
+	router.NewRoute().PathPrefix("/").HandlerFunc(HandleCORS).Methods("OPTIONS")
 
 	cbt := New(func() model.Model { return &model.CommonBaseType{} }, db, "CommonBaseType")
 	router.HandleFunc("/CBT", cbt.Create).Methods("POST")
@@ -68,4 +72,10 @@ func Router(db *gorm.DB) *mux.Router {
 	router.HandleFunc("/PAY", pay.Search).Methods("GET")
 
 	return router
+}
+
+func HandleCORS(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
+	rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+	rw.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 }

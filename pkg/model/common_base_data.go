@@ -45,3 +45,8 @@ func (cbd *CommonBaseData) Find(db *gorm.DB) ([]Model, error) {
 	}
 	return ret, nil
 }
+
+func (cbd *CommonBaseData) BeforeUpdate(tx *gorm.DB) (err error) {
+	cbd.CommonBaseType = CommonBaseType{}
+	return nil
+}

@@ -30,7 +30,7 @@ func (cad *CashAssistanceDetail) Load(g Getter) {
 }
 
 func (cad *CashAssistanceDetail) Validate() error {
-	if cad.MinPrice >= cad.NeededPrice {
+	if cad.MinPrice > cad.NeededPrice {
 		return fmt.Errorf("min price must be less than needed price!!")
 	}
 	return validator.New().Struct(cad)
@@ -49,4 +49,10 @@ func (cad *CashAssistanceDetail) Find(db *gorm.DB) ([]Model, error) {
 		ret[i] = &result[i]
 	}
 	return ret, nil
+}
+
+func (cad *CashAssistanceDetail) BeforeUpdate(tx *gorm.DB) (err error) {
+	cad.AssignNeedyPlan = AssignNeedyToPlan{}
+	cad.Plan = Plan{}
+	return nil
 }
